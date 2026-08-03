@@ -10,8 +10,18 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - uses: android-actions/setup-android@v3
-      - run: gradle assembleDebug
+      - name: Find and build
+        run: |
+          if [ -f settings.gradle ]; then
+            gradle assembleDebug
+          elif [ -f android/settings.gradle ]; then
+            cd android && gradle assembleDebug
+          else
+            echo "Cannot find Gradle build files"
+            find . -name settings.gradle
+            exit 1
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: vocab-app-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: "**/app/build/outputs/apk/debug/*.apk"
